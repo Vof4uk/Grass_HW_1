@@ -7,6 +7,8 @@ var matrixC = [ [1, 3, 4, 2],
 
 var matrixB = [60, 80, 100];
 var matrixA = [40, 60, 80, 60];
+// var matrixB = [100, 250, 200];
+// var matrixA = [150, 200, 100, 100];
 
 var time = new Date;
 
@@ -65,42 +67,75 @@ function northWest(priceGrid, rowOfStock, lineOfDelivery) {
     var plan = suggestPlan(rowOfStock, lineOfDelivery);
     for(var i = 0; i < rowOfStock.length; i++){
         for(var k = 0; k < lineOfDelivery.length; k++)
-        cost += priceGrid[i][k] * plan[i][k];
+        {
+            if(plan[i][k] !== "-")
+            cost += priceGrid[i][k] * plan[i][k];
+        }
     }
     console.log("plan is:");
-    for(var i = 0; i < plan.length; i++) {
-        console.log(plan[i].join("              "));
-    }
+    displayPlan(matrixB, matrixA, plan);
     console.log("Cost for this plan is: " + cost);
 }
 
+function displayPlan(rowOfStock, lineOfDelivery, plan) {
+    console.log("     " + lineOfDelivery.map(formatArrayElement).join(" "));
+    for(var i = 0; i < plan.length; i++) {
+        console.log(formatArrayElement(rowOfStock[i]) +  "|"
+            + plan[i].map(formatArrayElement).join(" "));
+    }
+}
+
+formatArrayElement = function (element) {
+    var len = element.toString().length;
+ if(len === 1)
+     return "   " + element;
+ else if(len === 2)
+     return "  " + element;
+ else if(len >= 3)
+     return " " + element;
+};
+
+
+
 function suggestPlan(rowOfStock, lineOfDelivery) {
-    var plan = emptyPlan(lineOfDelivery.length, rowOfStock.length);
+    var width = lineOfDelivery.length;
+    var height = rowOfStock.length;
+    var plan = emptyPlan(width, height);
     var i = 0, j = 0;
     var s = rowOfStock[i];
     var d = lineOfDelivery[j];
-    while (i < rowOfStock.length && j < lineOfDelivery.length){
+    var count = 0;
+    while (i < height && j < width){
         if(s < d){
-            plan[i][j] = s;
-            i++;
+            plan[i++][j] = s;
             d -= s;
             s = rowOfStock[i];
+            count++;
         }
         else if(d < s) {
-            plan[i][j] = d;
-            j++;
+            plan[i][j++] = d;
             s -= d;
             d = lineOfDelivery[j];
+            count++;
         }
         else{
-            plan[i][j] = d;
-            j++;
-            i++;
+            plan[i++][j++] = d;
             s = rowOfStock[i];
             d = lineOfDelivery[j];
+            count++;
+            if(i < height) {
+                plan[i][j - 1] = 0;
+                count++;
+            }
+            else if(j < width) {
+                plan[i - 1][j] = 0;
+                count++;
+            }
         }
     }
-    console.log(plan);
+    if(count === height + width - 1)
+        console.log("plan is valid(passed check)");
+    else    console.log("plan is not valid.");
     return plan;
 }
 
@@ -109,7 +144,7 @@ function emptyPlan(width, height) {
     for(var i = 0; i < height; i++){
         solution[i] = [];
         for(var k = 0; k < width; k++){
-            solution[i].push(0);
+            solution[i].push("-");
         }
     }
     return solution;
