@@ -20,18 +20,32 @@ var stopwatch = {
     }
 };
 
+function measureTime(functionIn){
+    var start = new Date();
+    functionIn();
+    return (new Date).getTime() - start.getTime();
+}
+
 var timeResults = {};
 
 
 function arrayDemo() {
     var arr = [];
 
-    stopwatch.click();
-    for(var i = 0; i < 1000000; i++){
-        arr.push(Math.round(Math.random() * 1000000));
-    }
-    timeResults["creationTime"] = stopwatch.click();
+    // stopwatch.click();
+    // for(var i = 0; i < 1000000; i++){
+    //     arr.push(Math.round(Math.random() * 1000000));
+    // }
+    // timeResults["creationTime"] = stopwatch.click();
+    // console.log(arr);
+    //
+    timeResults["creationTime"] = measureTime(function f() {
+        for(var i = 0; i < 1000000; i++){
+            arr.push(Math.round(Math.random() * 1000000));
+        }
+    });
     console.log(arr);
+
 
     stopwatch.click();
     arr.sort();
